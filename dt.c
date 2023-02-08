@@ -75,8 +75,17 @@ void arm_print_xnu_devicetree_node(XNUDTNode *node, int depth) {
     assert(node != NULL);
     XNUDTProp *prop = NULL;
     for (List *l = node->properties; l != NULL; l = l->next) {
+        if (strncmp((const char *)((XNUDTProp *)l->data)->name, "name", kPropNameLength) == 0) {
+            for (int i = 0; i < depth; ++i) {
+                printf("  ");
+            }
+            printf("%s: \n", ((XNUDTProp *)l->data)->value);
+            break;
+        }
+    }
+    for (List *l = node->properties; l != NULL; l = l->next) {
         prop = (XNUDTProp *)l->data;
-        for (int i = 0; i < depth; ++i) {
+        for (int i = 0; i < depth + 1; ++i) {
             printf("  ");
         }
         printf("%s (%d): ", prop->name, prop->length);

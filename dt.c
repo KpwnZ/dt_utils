@@ -97,6 +97,79 @@ void arm_print_xnu_devicetree_node(XNUDTNode *node, int depth) {
     }
 }
 
+XNUDTNode *arm_get_xnu_devicetree_node_by_name(XNUDTNode *node, const char *name) {
+    assert(node != NULL);
+    assert(name != NULL);
+    XNUDTProp *prop = NULL;
+    if ((prop = arm_get_xnu_devicetree_prop(node, (const uint8_t *)"name"))) {
+        if (strncmp((const char *)prop->value, name, prop->length) == 0) {
+            return node;
+        }
+    }
+    for (List *l = node->children; l != NULL; l = l->next) {
+        if ((node = arm_get_xnu_devicetree_node_by_name((XNUDTNode *)l->data, name))) {
+            return node;
+        }
+    }
+    return NULL;
+}
+
+void arm_add_xnu_devicetree_prop(XNUDTNode *root, const char *name, uint32_t len, const char *value, const char *path) {
+    assert(root != NULL);
+    assert(name != NULL);
+    // add property to the path
+    char *p = strdup(path);
+    char *node_name;
+    node_name = strtok(p, "/");
+    while (node_name != NULL) {
+        node_name = strtok(NULL, "/");
+        if (node_name) root = arm_get_xnu_devicetree_node_by_name(root, node_name);
+        if (!root) {
+            printf("node not found: %s", node_name);
+            exit(1);
+        }
+    }
+    XNUDTProp *prop = calloc(sizeof(XNUDTProp), 1);
+    memcpy(&prop->name[0], name, strlen(name));
+    prop->length = len;
+    prop->value = malloc(len);
+    memcpy(prop->value, value, len);
+    root->properties = list_append(root->properties, prop);
+    root->nprops++;
+}
+
+void do_write_devicetree(XNUDTNode *root, FILE *fp) {
+    assert(root != NULL);
+    assert(fp != NULL);
+    // write the node
+    uint32_t nprops = root->nprops;
+    uint32_t nchildren = root->nchildren;
+    fwrite(&nprops, sizeof(uint32_t), 1, fp);
+    fwrite(&nchildren, sizeof(uint32_t), 1, fp);
+    // write the properties
+    for (List *l = root->properties; l != NULL; l = l->next) {
+        XNUDTProp *prop = (XNUDTProp *)l->data;
+        fwrite(&prop->name[0], sizeof(uint8_t), kPropNameLength, fp);
+        fwrite(&prop->length, sizeof(uint32_t), 1, fp);
+        fwrite(prop->value, sizeof(uint8_t), (ALIGN(32 + 4 + prop->length) - 32 - 4), fp);
+    }
+    // write the children
+    for (List *l = root->children; l != NULL; l = l->next) {
+        do_write_devicetree((XNUDTNode *)l->data, fp);
+    }
+}
+
+void arm_save_devicetree(XNUDTNode *root, const char *path) {
+    FILE *fp = fopen(path, "wb");
+    if (!fp) {
+        printf("failed to open file: %s", path);
+        exit(1);
+    }
+    // iterate through the tree and write to file
+    do_write_devicetree(root, fp);
+    fclose(fp);
+}
+
 int is_empty_string(uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; ++i) {
         if (data[i] != 0) {

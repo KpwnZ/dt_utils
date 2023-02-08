@@ -6,16 +6,26 @@
 #include <stdint.h>
 
 int main(int argc, const char **argv) {
+    const char *path = NULL;
     const char *name = NULL;
-    
+    const char *data = NULL;
+    int len = 0;
+    int op = 0;
     if (argc < 2) {
-        printf("usage: %s <dtb> [-s name]\n", argv[0]);
+        printf("usage: %s <dtb> [-s name] [-a path name len data dst]\n", argv[0]);
         return 1;
     }
 
     if (argc == 4 && strcmp(argv[2], "-s") == 0) {
         name = argv[3];
-    }
+        op = 1;
+    } else if (argc == 8 && strcmp(argv[2], "-a") == 0) {
+        path = argv[3];
+        name = argv[4];
+        len = atoi(argv[5]);
+        data = argv[6];
+        op = 2;
+    } 
 
     // read dtb into memory
     FILE *fp = fopen(argv[1], "rb");
@@ -31,16 +41,18 @@ int main(int argc, const char **argv) {
     fclose(fp);
 
     XNUDTNode *root = arm_parse_xnu_devicetree((uint8_t *)blob);
-    if (name) {
+    if (op == 1) {
         XNUDTProp *n = arm_search_xnu_devicetree_prop_by_name(root, (uint8_t *)name);
         if (n) {
             printf("%s: ", n->name);
             for (int i = 0; i < n->length; ++i) {
                 printf("%02x ", ((uint8_t *)n->value)[i]);
             }
-        } else {
+        } else 
             printf("error: could not find node %s\n", name);
-        }
+    } else if (op == 2) {
+        arm_add_xnu_devicetree_prop(root, name, len, data, path);
+        arm_save_devicetree(root, argv[7]);
     } else {
         arm_print_xnu_devicetree_node(root, 0);
     }

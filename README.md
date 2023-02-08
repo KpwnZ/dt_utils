@@ -3,6 +3,7 @@
 Devicetree utilities
 
 - parse devicetree files
+- add new property to a node
 
 ## Compile
 

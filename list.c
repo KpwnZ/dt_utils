@@ -18,3 +18,21 @@ List *list_append(List *list, void *data) {
     last->next = new;
     return list;
 }
+
+List *list_delete_link(List *list, void *data) {
+    List *prev = NULL;
+    List *l = list;
+    while (l != NULL) {
+        if (l->data == data) {
+            if (prev == NULL) {
+                list = l->next;
+            } else {
+                prev->next = l->next;
+            }
+            break;
+        }
+        prev = l;
+        l = l->next;
+    }
+    return list;
+}

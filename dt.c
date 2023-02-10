@@ -114,6 +114,32 @@ XNUDTNode *arm_get_xnu_devicetree_node_by_name(XNUDTNode *node, const char *name
     return NULL;
 }
 
+void arm_remove_xnu_devicetree_prop(XNUDTNode *root, const char *name, const char *path) {
+    assert(root != NULL);
+    assert(name != NULL);
+    // add property to the path
+    char *p = strdup(path);
+    char *node_name;
+    node_name = strtok(p, "/");
+    while (node_name != NULL) {
+        node_name = strtok(NULL, "/");
+        if (node_name) root = arm_get_xnu_devicetree_node_by_name(root, node_name);
+        if (!root) {
+            printf("node not found: %s", node_name);
+            exit(1);
+        }
+    }
+    XNUDTProp *prop = arm_get_xnu_devicetree_prop(root, (const uint8_t *)name);
+    if (!prop) {
+        printf("property not found: %s", name);
+        exit(1);
+    }
+    root->nprops--;
+    root->properties = list_delete_link(root->properties, prop);
+    free(prop->value);
+    free(prop);
+}
+
 void arm_add_xnu_devicetree_prop(XNUDTNode *root, const char *name, uint32_t len, const char *value, const char *path) {
     assert(root != NULL);
     assert(name != NULL);

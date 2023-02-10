@@ -12,7 +12,7 @@ int main(int argc, const char **argv) {
     int len = 0;
     int op = 0;
     if (argc < 2) {
-        printf("usage: %s <dtb> [-s name] [-a path name len data dst]\n", argv[0]);
+        printf("usage: %s <dtb> [-s <name> | -a <path> <name> <len> <data> <output> | -d <path> <name> <output>]", argv[0]);
         return 1;
     }
 
@@ -25,7 +25,11 @@ int main(int argc, const char **argv) {
         len = atoi(argv[5]);
         data = argv[6];
         op = 2;
-    } 
+    } else if (argc == 6 && strcmp(argv[2], "-d") == 0) {
+        path = argv[3];
+        name = argv[4];
+        op = 3;
+    }
 
     // read dtb into memory
     FILE *fp = fopen(argv[1], "rb");
@@ -53,6 +57,9 @@ int main(int argc, const char **argv) {
     } else if (op == 2) {
         arm_add_xnu_devicetree_prop(root, name, len, data, path);
         arm_save_devicetree(root, argv[7]);
+    } else if (op == 3) {
+        arm_remove_xnu_devicetree_prop(root, name, path);
+        arm_save_devicetree(root, argv[5]);
     } else {
         arm_print_xnu_devicetree_node(root, 0);
     }

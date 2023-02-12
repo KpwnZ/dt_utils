@@ -12,7 +12,7 @@ int main(int argc, const char **argv) {
     int len = 0;
     int op = 0;
     if (argc < 2) {
-        printf("usage: %s <dtb> [-s <name> | -a <path> <name> <len> <data> <output> | -d <path> <name> <output>]", argv[0]);
+        printf("usage: %s <dtb> [-s <name> | -a <path> <name> <len> <data> <output> | -d <path> <name> <output>]\n", argv[0]);
         return 1;
     }
 

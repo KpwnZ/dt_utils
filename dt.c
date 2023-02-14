@@ -46,16 +46,24 @@ XNUDTProp *arm_read_xnu_devicetree_prop(uint8_t **blob) {
     return prop;
 }
 
-XNUDTProp *arm_search_xnu_devicetree_prop_by_name(XNUDTNode *node, const uint8_t *name) {
+XNUDTProp *arm_search_xnu_devicetree_prop_by_name(XNUDTNode *node, const uint8_t *name, char **path) {
     assert(node != NULL);
     assert(name != NULL);
     XNUDTProp *prop = NULL;
+    if (*path == NULL) {
+        *path = strdup((const char *)(arm_get_xnu_devicetree_prop(node, "name")->value));
+    }
     if ((prop = arm_get_xnu_devicetree_prop(node, name))) {
         return prop;
     }
     for (List *l = node->children; l != NULL; l = l->next) {
-        if ((prop = arm_search_xnu_devicetree_prop_by_name((XNUDTNode *)l->data, name))) {
+        char *new_path = NULL;
+        asprintf(&new_path, "%s/%s", *path, arm_get_xnu_devicetree_prop((XNUDTNode *)l->data, "name")->value);
+        if ((prop = arm_search_xnu_devicetree_prop_by_name((XNUDTNode *)l->data, name, &new_path))) {
+            *path = new_path;
             return prop;
+        } else {
+            free(new_path);
         }
     }
     return NULL;

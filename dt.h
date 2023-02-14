@@ -36,7 +36,7 @@ List *list_delete_link(List *list, void *data);
 void style_print_data(uint8_t *prop_name, uint8_t *data, size_t len);
 XNUDTProp *arm_read_xnu_devicetree_prop(uint8_t **blob);
 XNUDTNode *arm_do_parse_xnu_devicetree(uint8_t **blob);
-XNUDTProp *arm_search_xnu_devicetree_prop_by_name(XNUDTNode *node, const uint8_t *name);
+XNUDTProp *arm_search_xnu_devicetree_prop_by_name(XNUDTNode *node, const uint8_t *name, char **path);
 XNUDTProp *arm_get_xnu_devicetree_prop(XNUDTNode *node, const uint8_t *name);
 XNUDTProp *arm_set_xnu_devicetree_prop(XNUDTProp *n, const uint8_t *name, uint32_t size, uint8_t *val);
 void arm_print_xnu_devicetree_node(XNUDTNode *node, int depth);

@@ -54,9 +54,10 @@ int main(int argc, const char **argv) {
 
     XNUDTNode *root = arm_parse_xnu_devicetree((uint8_t *)blob);
     if (op == 1) {
-        XNUDTProp *n = arm_search_xnu_devicetree_prop_by_name(root, (uint8_t *)name);
-        if (n) {
-            printf("%s: ", n->name);
+        char *path = NULL;
+        XNUDTProp *n = arm_search_xnu_devicetree_prop_by_name(root, (uint8_t *)name, &path);
+        if (path && n) {
+            printf("%s\n%s: ", path, n->name);
             for (int i = 0; i < n->length; ++i) {
                 printf("%02x ", ((uint8_t *)n->value)[i]);
             }

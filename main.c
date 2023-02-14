@@ -12,7 +12,15 @@ int main(int argc, const char **argv) {
     int len = 0;
     int op = 0;
     if (argc < 2) {
-        printf("usage: %s <dtb> [-s <name> | -a <path> <name> <len> <data> <output> | -d <path> <name> <output>]\n", argv[0]);
+        printf(
+            "usage: %s <dtb> \n"
+            "-s <name>                                   search for a property with name\n"
+            "   -s prop_name\n"
+            "-a <nodepath> <name> <len> <data> <output>  add new property to node with nodepath\n"
+            "   -a /device-tree/chosen prop_name 4 `echo '\\x12\\x34\\x56'` output.dtb\n"
+            "-d <nodepath> <name> <output>               delete property from node with nodepath\n"
+            "   -d /device-tree/chosen prop_name output.dtb\n",
+            argv[0]);
         return 1;
     }
 

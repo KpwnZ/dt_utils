@@ -8,6 +8,8 @@ Devicetree utilities
 
 ## Compile
 
+run `make` or
+
 ```bash
-$ clang list.c dt.c main.c -o dt_util
+$ clang src/list.c src/dt.c src/main.c -o dt_util
 ```

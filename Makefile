@@ -1,11 +1,12 @@
-SRC    := src/list.c src/dt.c src/main.c
-LDLIBS := 
+SRC  := $(wildcard src/*.c)
+OBJS := $(SRC:%.c=%.o)
 
 all: dt_utils
 
-dt_utils: $(SRC:%.c=%.o)
-	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+dt_utils: $(OBJS)
+	$(CC) $(LDFLAGS) $^ $(LOADLIBS) $(LDLIBS) -o $@
+
+.PHONY: clean
 
 clean:
-	$(RM) dt_utils $(SRC:%.c=%.o)
-
+	rm -rf dt_utils $(OBJS)

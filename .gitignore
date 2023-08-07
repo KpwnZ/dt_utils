@@ -1,2 +1,4 @@
 /build
+*.o
+dt_utils
 .DS_Store
